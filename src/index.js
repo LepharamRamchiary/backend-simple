@@ -1,20 +1,27 @@
-import mongoose from "mongoose";
-import { DB_NAME } from "./constants.js";
-import express from "express";
-import 'dotenv/config';
+// advance connection with monogoDB
+import dotenv from "dotenv"
+import connectDB from "./db/inedx.js"
 
-const app = express()
-const port = process.env.PORT;
-const mongoDB_URL = process.env.MONGODB_URL;
-
+dotenv.config({
+    path: "./env"
+})
 
 
-
+connectDB()
 
 
 
 
 
+// import express from "express";
+// import 'dotenv/config';
+// import mongoose from "mongoose";
+// import { DB_NAME } from "./constants.js";
+// const app = express()
+// const port = process.env.PORT;
+// const mongoDB_URL = process.env.MONGODB_URL;
+
+/*
 // Immediately-invoked function expression (IIFE)
 // basice approch
 ;( async () => {
@@ -34,3 +41,5 @@ const mongoDB_URL = process.env.MONGODB_URL;
         throw error
     }
 })()
+
+*/
