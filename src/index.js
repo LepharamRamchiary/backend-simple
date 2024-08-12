@@ -8,6 +8,7 @@ const port = process.env.PORT;
 const mongoDB_URL = process.env.MONGODB_URL;
 
 // Immediately-invoked function expression (IIFE)
+// basice approch
 ;( async () => {
     try {
         await mongoose.connect(`${mongoDB_URL}/${DB_NAME}`)
