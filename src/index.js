@@ -1,13 +1,19 @@
 // advance connection with monogoDB
 import dotenv from "dotenv"
 import connectDB from "./db/inedx.js"
+import express from "express"
 
 dotenv.config({
     path: "./env"
 })
-
+const app = express()
 
 connectDB()
+
+app.listen(process.env.PORT, () => {
+    console.log(`Server is live on:${process.env.PORT}`)
+})
+
 
 
 
