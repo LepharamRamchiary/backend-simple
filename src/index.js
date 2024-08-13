@@ -1,11 +1,11 @@
 // advance connection with monogoDB
 import dotenv from "dotenv"
 import connectDB from "./db/inedx.js"
+import { app } from "./app.js"
 
 dotenv.config({
     path: "./env"
 })
-const app = express()
 
 connectDB()
 .then(() => {
