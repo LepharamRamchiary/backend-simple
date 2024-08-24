@@ -7,6 +7,8 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+
+
 const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (!localFilePath) return null
@@ -17,11 +19,14 @@ const uploadOnCloudinary = async (localFilePath) => {
         }
         )
         // file has been upload successfull
-        console.log("file is upload on cloudinary", response.url);
+        // console.log("file is upload on cloudinary", response.url);
+        fs.unlinkSync(localFilePath)
+        
         return response
     } catch (error) {
         fs.unlinkSync(localFilePath) // remove the locally saved temporay file as the upload operation got failed
     }
+    // console.log("Response got: ",response);
 }
 
 export { uploadOnCloudinary }
