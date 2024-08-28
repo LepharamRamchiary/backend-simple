@@ -297,7 +297,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, req.user, "Current user fetch successfully"))
 })
 
-const userDetailsUpdate = asyncHandler(async (req, res) => {
+const updateAccountDetails = asyncHandler(async (req, res) => {
     // desetrucing what we need to update from body 
     const { fullname, email, username } = req.body
 
@@ -327,4 +327,4 @@ const userDetailsUpdate = asyncHandler(async (req, res) => {
 
 })
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, userDetailsUpdate }
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails }
