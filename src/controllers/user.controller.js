@@ -332,6 +332,15 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is missing")
     }
+
+    // retrive the current user to get the old avater url
+    const user = await User.findById(req.user?._id)
+
+    // delete old avater from cloudinary
+    if(user?.avater) {
+        await deleteFromCloudinary(user?.avater)
+    }
+
     //  uploading avata file in cloudinry
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
@@ -340,7 +349,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     }
 
     // update
-    const user = await User.findByIdAndUpdate(
+    const updateUser = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
@@ -354,7 +363,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, user, "Avatar updated sucessfully"))
+        .json(new ApiResponse(200, updateUser, "Avatar updated sucessfully"))
 })
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
