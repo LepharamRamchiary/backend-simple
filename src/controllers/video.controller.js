@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
-import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -120,21 +120,21 @@ const updateVideo = asyncHandler(async (req, res) => {
     //TODO: update video details like title, description, thumbnail
     const { title, description, thumbnail: newthumbnail } = req.body;
 
-    if( !title && !description && !newthumbnail){
+    if (!title && !description && !newthumbnail) {
         throw new ApiError(400, "Any of one filed are required")
     }
 
     const video = await Video.findById(videoId)
-    if(!video){
+    if (!video) {
         throw new ApiError(404, "Video not found")
     }
 
-    if(newthumbnail && video?.thumbnail){
+    if (newthumbnail && video?.thumbnail) {
         await deleteFromCloudinary(video?.thumbnail)
     }
 
     let thumbnailUrl = video.thumbnail;
-    if(newthumbnail){
+    if (newthumbnail) {
         thumbnailUrl = await uploadOnCloudinary(newthumbnail)
     }
 
@@ -142,13 +142,13 @@ const updateVideo = asyncHandler(async (req, res) => {
         videoId,
         {
             $set: {
-                title: title || video.title, // Keep the old value if not provided
-                description: description || video.description, // Keep the old value if not provided
-                thumbnail: thumbnailUrl.url // Update with new or old thumbnail
+                title: title || video.title,
+                description: description || video.description,
+                thumbnail: thumbnailUrl.url
             }
         },
         {
-            new: true // Return the updated document
+            new: true
         }
     );
 
@@ -194,6 +194,20 @@ const updateVideo = asyncHandler(async (req, res) => {
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: delete video
+    const video = await Video.findById(videoId)
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
+
+    if (video?.thumbnail) {
+        await deleteFromCloudinary(video?.thumbnail) 
+    }
+
+    await Video.findByIdAndDelete(videoId)
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Video deleted successfully"))
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
