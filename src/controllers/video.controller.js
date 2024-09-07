@@ -106,7 +106,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
     try {
         const video = await Video.findById(videoId)
-        if(!video){
+        if (!video) {
             throw new ApiError(400, "Video not found")
         }
         res.status(200).json(new ApiResponse(200, video, "Video found Sucessfully"))
@@ -118,6 +118,19 @@ const getVideoById = asyncHandler(async (req, res) => {
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: update video details like title, description, thumbnail
+    const { title, description, thumbnail } = req.body
+
+    try {
+        const video = await Video.findByIdAndUpdate(videoId, {title, description, thumbnail}, {new: true})
+
+        if(!video){
+            throw new ApiError(404, "Video not found")
+        }
+
+        res.status(200).json(new ApiResponse(200, video, "Video updated successfully"))
+    } catch (error) {
+        throw new ApiError(500, "Server errror")
+    }
 
 })
 
