@@ -67,17 +67,30 @@ const updateComment = asyncHandler(async (req, res) => {
         { new: true }
     )
 
-    if(!updatedComment) {
-    throw new ApiError(404, "Comment not found")
+    if (!updatedComment) {
+        throw new ApiError(404, "Comment not found")
     }
 
     res.status(200).json(new ApiResponse(200, updateComment, "Comment updated successfully"))
 
-    
+
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
     // TODO: delete a comment
+    const { commentId } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        throw new ApiError(400, "Invalid comment ID")
+    }
+
+    const deleteComment = await Comment.findByIdAndDelete(commentId)
+
+    if (!deleteComment) {
+        throw new ApiError(404, "Comment not found")
+    }
+
+    res.status(200).json(new ApiResponse(200, {}, "Comment deleted successfully"))
 })
 
 export {
