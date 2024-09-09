@@ -45,8 +45,8 @@ const addComment = asyncHandler(async (req, res) => {
 
     const newComment = await Comment.create({
         content,
-        video: new mongoose.Types.ObjectId(videoId), 
-        owner: req.user._id 
+        video: new mongoose.Types.ObjectId(videoId),
+        owner: req.user._id
     });
 
     res.status(201).json(new ApiResponse(201, newComment, "Comment added successfully"));
@@ -54,6 +54,26 @@ const addComment = asyncHandler(async (req, res) => {
 
 const updateComment = asyncHandler(async (req, res) => {
     // TODO: update a comment
+    const { commentId } = req.params
+    const { content } = req.body
+
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        throw new ApiError(400, "Invalid comment ID")
+    }
+
+    const updatedComment = await Comment.findByIdAndUpdate(
+        commentId,
+        { content },
+        { new: true }
+    )
+
+    if(!updatedComment) {
+    throw new ApiError(404, "Comment not found")
+    }
+
+    res.status(200).json(new ApiResponse(200, updateComment, "Comment updated successfully"))
+
+    
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
