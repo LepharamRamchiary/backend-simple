@@ -1,14 +1,13 @@
-import mongoose, { isValidObjectId } from "mongoose"
-import { User } from "../models/user.model.js"
-import { Subscription } from "../models/subscription.model.js"
-import { ApiError } from "../utils/ApiError.js"
-import { ApiResponse } from "../utils/ApiResponse.js"
-import { asyncHandler } from "../utils/asyncHandler.js"
+import mongoose, { isValidObjectId } from "mongoose";
+import { User } from "../models/user.model.js";
+import { Subscription } from "../models/subscription.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
-
+// Controller to toggle subscription (subscribe/unsubscribe)
 const toggleSubscription = asyncHandler(async (req, res) => {
-    const { channelId } = req.params
-    // TODO: toggle subscription
+    const { channelId } = req.params;
     const subscriberId = req.user._id;
 
     // Validate channel ID and subscriber ID
@@ -47,20 +46,73 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         await newSubscription.save();
         return res.status(200).json(new ApiResponse(200, newSubscription, "Subscribed successfully"));
     }
-})
+});
 
-// controller to return subscriber list of a channel
+// Controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    const { channelId } = req.params
-})
+    const { subscriberId } = req.params;
 
-// controller to return channel list to which user has subscribed
+    console.log(subscriberId);
+    
+    
+});
+
+
+// Controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params
-})
+    const { channelId } = req.params;
+
+    // console.log("Channel ID from request params:", channelId);
+
+    // Validate channel ID
+    if (!isValidObjectId(channelId)) {
+        throw new ApiError(400, "Invalid channel ID");
+    }
+
+    // Check if the channel exists
+    const channel = await User.findById(channelId);
+    if (!channel) {
+        throw new ApiError(404, "Channel not found");
+    }
+
+    // Aggregate to find all channels the user has subscribed to and fetch channel details
+    const subscriptions = await Subscription.aggregate([
+        {
+            $match: {
+                subscriber: new mongoose.Types.ObjectId(channelId),
+            },
+        },
+        {
+            $lookup: {
+                from: "users", // The name of the User collection
+                localField: "channel",
+                foreignField: "_id",
+                as: "channelDetails",
+            },
+        },
+        {
+            $unwind: "$channelDetails",
+        },
+        {
+            $project: {
+                _id: 0,
+                channelId: "$channelDetails._id",
+                channelName: "$channelDetails.username", // Assuming 'username' is the channel name
+                channelAvatar: "$channelDetails.avatar", // Assuming 'avatar' is the channel's avatar
+            },
+        },
+    ]);
+
+    if (subscriptions.length === 0) {
+        return res.status(200).json(new ApiResponse(200, [], "No subscribed channels found"));
+    }
+
+    return res.status(200).json(new ApiResponse(200, subscriptions, "Subscribed channels fetched successfully"));
+});
+
 
 export {
     toggleSubscription,
     getUserChannelSubscribers,
-    getSubscribedChannels
-}
+    getSubscribedChannels,
+};
