@@ -29,6 +29,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     //TODO: toggle like on video
     const userId = req.user._id
 
+    // validation
     if (!isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video ID")
     }
@@ -42,7 +43,17 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 const toggleCommentLike = asyncHandler(async (req, res) => {
     const { commentId } = req.params
     //TODO: toggle like on comment
+    const userId = req.user._id
 
+    // validation
+    if (!isValidObjectId(commentId)) {
+        throw new ApiError(400, "Comment ID is invalid")
+    }
+
+    const result = await createLike(userId, commentId, "comment")
+    return res
+        .status(200)
+        .json(new ApiResponse(200, result, "Comment is liked sucessfully"))
 })
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
