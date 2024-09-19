@@ -63,6 +63,33 @@ const getChannelStats = asyncHandler(async (req, res) => {
 
 const getChannelVideos = asyncHandler(async (req, res) => {
     // TODO: Get all the videos uploaded by the channel
+    const userId = req.user._id
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new ApiError(400, "Invalid user ID")
+    }
+
+    const { page = 1, limit = 10 } = req.query
+
+    const videos = await Video.aggregatePaginate(
+        Video.aggregate([
+            {
+                $match: {
+                    owner: new mongoose.Types.ObjectId(userId)
+                }
+            }
+        ]),
+        { page, limit }
+    )
+
+    if (!videos) {
+        throw new ApiError(404, "Videos not found")
+    }
+
+    res
+        .status(200)
+        .json(new ApiResponse(200, videos, "Videos fetched successfully"))
+
 })
 
 export {
